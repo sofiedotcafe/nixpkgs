@@ -578,5 +578,10 @@ in {
             "${nonRootTestImage} | docker load",
             "docker run --rm ${chownTestImage.imageName} | diff /dev/stdin <(echo 12345:12345)"
         )
+
+    with subtest("Ensure runAsRoot works with useFUSEOverlayFS"):
+         docker.succeed(
+            "docker load --input='${examples.useFUSEOverlayFS}'"
+        )
   '';
 })
