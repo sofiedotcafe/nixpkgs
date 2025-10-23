@@ -7,6 +7,7 @@
   gettext,
   gtk4,
   libadwaita,
+  libdex,
   meson,
   ninja,
   pkg-config,
@@ -42,6 +43,7 @@ stdenv.mkDerivation (finalAttrs: {
     glib
     gtk4
     libadwaita
+    libdex
   ];
 
   passthru = {
