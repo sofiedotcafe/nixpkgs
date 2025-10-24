@@ -51,6 +51,7 @@
   pipewire,
   gst_all_1,
   adwaita-icon-theme,
+  glycin-loaders,
   gnome-bluetooth,
   gnome-clocks,
   gnome-settings-daemon,
@@ -221,9 +222,15 @@ stdenv.mkDerivation (finalAttrs: {
 
   preFixup = ''
     gappsWrapperArgs+=(
-      # Until glib’s xdgmime is patched
-      # Fixes “Failed to load resource:///org/gnome/shell/theme/noise-texture.png: Unrecognized image file format”
-      --prefix XDG_DATA_DIRS : "${shared-mime-info}/share"
+      --prefix XDG_DATA_DIRS : ${
+        lib.makeSearchPath "share" [
+          # Until glib’s xdgmime is patched
+          # Fixes “Failed to load resource:///org/gnome/shell/theme/noise-texture.png: Unrecognized image file format”
+          shared-mime-info
+          # For background images https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/4554
+          glycin-loaders
+        ]
+      }
     )
   '';
 
