@@ -28,6 +28,7 @@
   gsettings-desktop-schemas,
   gsound,
   gst_all_1,
+  gtk3,
   gtk4,
   ibus,
   json-glib,
@@ -124,6 +125,7 @@ stdenv.mkDerivation (finalAttrs: {
     gnome-user-share # optional, sharing panel
     gsettings-desktop-schemas
     gsound
+    gtk3 # org.gtk.Settings.FileChooser schema (datetime panel sets clock-format)
     gtk4
     ibus
     json-glib
