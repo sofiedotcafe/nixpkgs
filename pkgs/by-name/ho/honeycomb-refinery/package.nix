@@ -2,19 +2,17 @@
   lib,
   buildGoModule,
   fetchFromGitHub,
-  versionCheckHook,
-  nix-update-script,
 }:
 
-buildGoModule (finalAttrs: {
+buildGoModule rec {
   pname = "honeycomb-refinery";
-  version = "3.0.0";
+  version = "1.19.0";
 
   src = fetchFromGitHub {
     owner = "honeycombio";
     repo = "refinery";
-    rev = "v${finalAttrs.version}";
-    hash = "sha256-jt8aEqglGXzBL5UDOz8e7qRDmE3RnMb2y+eLFI9jJSE=";
+    rev = "v${version}";
+    hash = "sha256-SU9JbyUuBMqPw4XcoF5s8CgBn7+V/rHBAwpXJk373jg=";
   };
 
   NO_REDIS_TEST = true;
@@ -26,33 +24,23 @@ buildGoModule (finalAttrs: {
     ./0001-add-NO_REDIS_TEST-env-var-that-disables-Redis-requir.patch
   ];
 
-  excludedPackages = [
-    "LICENSES"
-    "cmd/test_redimem"
-  ];
+  excludedPackages = [ "cmd/test_redimem" ];
 
   ldflags = [
     "-s"
     "-w"
-    "-X main.BuildID=${finalAttrs.version}"
+    "-X main.BuildID=${version}"
   ];
 
-  vendorHash = "sha256-/1IT3GxKANBltetRKxP/jUG05GGbg9mc7aWEcbrwUT0=";
+  vendorHash = "sha256-0M05JGLdmKivRTN8ZdhAm+JtXTlYAC31wFS82g3NenI=";
 
   doCheck = true;
 
-  nativeInstallCheckInputs = [ versionCheckHook ];
-  doInstallCheck = true;
-  versionCheckProgram = "${placeholder "out"}/bin/${finalAttrs.meta.mainProgram}";
-  versionCheckProgramArg = "--version";
-
-  passthru.updateScript = nix-update-script { };
-
-  meta = {
+  meta = with lib; {
     homepage = "https://github.com/honeycombio/refinery";
     description = "Tail-sampling proxy for OpenTelemetry";
+    license = licenses.asl20;
+    maintainers = [ ];
     mainProgram = "refinery";
-    license = lib.licenses.asl20;
-    teams = [ lib.teams.mercury ];
   };
-})
+}
