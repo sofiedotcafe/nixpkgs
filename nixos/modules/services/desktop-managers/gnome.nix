@@ -312,7 +312,7 @@ in
       ) flashbackWms)
       # For /share/pkgs.gnome-session/sessions/gnome-flashback-${wmName}.session
       ++ (map (
-        wm: pkgs.gnome-flashback.mkGnomeSession { inherit (wm) wmName wmLabel enableGnomePanel; }
+        wm: pkgs.gnome-flashback.mkGnomeSession { inherit (wm) wmName wmLabel; }
       ) flashbackWms);
     })
 

@@ -34,36 +34,6 @@
   buildEnv,
 }:
 
-let
-  # From data/sessions/Makefile.am
-  requiredComponentsCommon =
-    enableGnomePanel: [ "gnome-flashback" ] ++ lib.optional enableGnomePanel "gnome-panel";
-  requiredComponentsGsd = [
-    "org.gnome.SettingsDaemon.A11ySettings"
-    "org.gnome.SettingsDaemon.Color"
-    "org.gnome.SettingsDaemon.Datetime"
-    "org.gnome.SettingsDaemon.Housekeeping"
-    "org.gnome.SettingsDaemon.Keyboard"
-    "org.gnome.SettingsDaemon.MediaKeys"
-    "org.gnome.SettingsDaemon.Power"
-    "org.gnome.SettingsDaemon.PrintNotifications"
-    "org.gnome.SettingsDaemon.Rfkill"
-    "org.gnome.SettingsDaemon.ScreensaverProxy"
-    "org.gnome.SettingsDaemon.Sharing"
-    "org.gnome.SettingsDaemon.Smartcard"
-    "org.gnome.SettingsDaemon.Sound"
-    "org.gnome.SettingsDaemon.UsbProtection"
-    "org.gnome.SettingsDaemon.Wacom"
-    "org.gnome.SettingsDaemon.XSettings"
-  ];
-  requiredComponents =
-    wmName: enableGnomePanel:
-    "RequiredComponents=${
-      lib.concatStringsSep ";" (
-        [ wmName ] ++ requiredComponentsCommon enableGnomePanel ++ requiredComponentsGsd
-      )
-    };";
-in
 stdenv.mkDerivation (finalAttrs: {
   pname = "gnome-flashback";
   version = "3.58.0";
@@ -90,10 +60,6 @@ stdenv.mkDerivation (finalAttrs: {
   '';
 
   postInstall = ''
-    # Check that our expected RequiredComponents match the stock session files, but then don't install them.
-    # They can be installed using mkSessionForWm.
-    grep '${requiredComponents "metacity" true}' $out/share/gnome-session/sessions/gnome-flashback-metacity.session || (echo "RequiredComponents have changed, please update gnome-flashback/default.nix."; false)
-
     rm -r $out/share/gnome-session
     rm -r $out/share/xsessions
     rm $out/libexec/gnome-flashback-metacity
@@ -167,7 +133,6 @@ stdenv.mkDerivation (finalAttrs: {
       {
         wmName,
         wmLabel,
-        enableGnomePanel,
       }:
       writeTextFile {
         name = "gnome-flashback-${wmName}-gnome-session";
@@ -175,7 +140,6 @@ stdenv.mkDerivation (finalAttrs: {
         text = ''
           [GNOME Session]
           Name=GNOME Flashback (${wmLabel})
-          ${requiredComponents wmName enableGnomePanel}
         '';
       };
 
