@@ -17,6 +17,7 @@
   libpulseaudio,
   libxkbfile,
   libxml2,
+  metacity,
   pkg-config,
   polkit,
   gdm,
@@ -173,11 +174,33 @@ stdenv.mkDerivation (finalAttrs: {
         wmCommand,
         enableGnomePanel,
       }:
-      runCommand "gnome-flashback-${wmName}.target" { } ''
-        mkdir -p $out/lib/systemd/user
-        cp -r "${finalAttrs.finalPackage}/lib/systemd/user/gnome-session@gnome-flashback-metacity.target.d" \
-          "$out/lib/systemd/user/gnome-session@gnome-flashback-${wmName}.target.d"
-      '';
+      runCommand "gnome-flashback-${wmName}.target" { } (
+        ''
+          if [ "${wmName}" = "metacity" ]; then
+            echo "Use `services.xserver.windowManager.metacity.enable` instead."
+            exit 1
+          fi
+
+          mkdir -p $out/lib/systemd/user/gnome-session@gnome-flashback-${wmName}.target.d
+          cp "${finalAttrs.finalPackage}/lib/systemd/user/gnome-session@gnome-flashback-metacity.target.d/session.conf" \
+            "$out/lib/systemd/user/gnome-session@gnome-flashback-${wmName}.target.d/session.conf"
+
+          substitute ${finalAttrs.finalPackage}/lib/systemd/user/gnome-session-x11@gnome-flashback-metacity.target \
+            "$out/lib/systemd/user/gnome-session-x11@gnome-flashback-${wmName}.target" \
+            --replace-fail "(Metacity)" "(${wmLabel})"
+
+          echo -e "[Unit]\nWants=${wmName}.service" >> "$out/lib/systemd/user/gnome-session@gnome-flashback-${wmName}.target.d/${wmName}.conf"
+
+          substitute ${metacity}/lib/systemd/user/metacity.service \
+            "$out/lib/systemd/user/${wmName}.service" \
+            --replace-fail "Description=Metacity" "Description=${wmLabel}" \
+            --replace-fail "ExecStart=${metacity}/bin/metacity" "ExecStart=${wmCommand}"
+        ''
+        + lib.optionalString (!enableGnomePanel) ''
+          substituteInPlace "$out/lib/systemd/user/gnome-session@gnome-flashback-${wmName}.target.d/session.conf" \
+            --replace-fail "Wants=gnome-panel.service" ""
+        ''
+      );
 
     tests = {
       inherit (nixosTests) gnome-flashback;
