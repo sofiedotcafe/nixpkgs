@@ -54,6 +54,11 @@ stdenv.mkDerivation {
     rm -r $out/lib/gnome-panel/modules
     ${xorg.lndir}/bin/lndir -silent ${panelModulesEnv} $out
 
+    rm $out/share/systemd/user/gnome-panel.service
+    substitute ${gnome-panel}/share/systemd/user/gnome-panel.service \
+      $out/share/systemd/user/gnome-panel.service \
+      --replace-fail "ExecStart=${gnome-panel}/bin/gnome-panel" "ExecStart=$out/bin/gnome-panel"
+
     runHook postInstall
   '';
 
