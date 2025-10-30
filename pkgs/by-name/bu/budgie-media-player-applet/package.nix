@@ -46,6 +46,7 @@ stdenv.mkDerivation (finalAttrs: {
   postPatch = ''
     substituteInPlace meson.build --replace-fail "/usr" "$out"
 
+    # https://github.com/BuddiesOfBudgie/budgie-desktop/issues/749
     substituteInPlace budgie-media-player-applet.plugin.in \
       --replace-fail "Loader=@PYTHON@" "Loader=python"
   '';
