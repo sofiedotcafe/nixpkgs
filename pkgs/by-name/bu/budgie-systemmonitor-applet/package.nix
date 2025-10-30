@@ -49,6 +49,7 @@ stdenv.mkDerivation (finalAttrs: {
   ];
 
   postPatch = ''
+    # https://github.com/BuddiesOfBudgie/budgie-desktop/issues/749
     substituteInPlace meson.build \
       --replace-fail "dependency('libpeas-1.0', version: '>= 1.8.0')" "dependency('libpeas-2')"
   '';
